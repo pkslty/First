@@ -11,6 +11,26 @@ import SceneKit
 
 class GameViewController: UIViewController {
 
+    var scene: SCNScene {
+        (self.view as! SCNView).scene!
+    }
+    
+    var ship: SCNNode? {
+        scene.rootNode.childNode(withName: "ship", recursively: true)
+    }
+    func addship() {
+        ship?.position.z = -105
+        
+        // animate the 3d object
+        //ship.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: 1)))
+        ship?.runAction(SCNAction.move(to: SCNVector3(0, 0, 0), duration: 15)) {
+            DispatchQueue.main.async {
+                self.ship?.removeFromParentNode()
+            }
+            print(#line, "Game Over")
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -40,11 +60,9 @@ class GameViewController: UIViewController {
         scene.rootNode.addChildNode(ambientLightNode)
         
         // retrieve the ship node
-        let ship = scene.rootNode.childNode(withName: "ship", recursively: true)!
-        ship.position.z = -105
+        //let ship = scene.rootNode.childNode(withName: "ship", recursively: true)!
         
-        // animate the 3d object
-        //ship.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: 1)))
+        
         
         // retrieve the SCNView
         let scnView = self.view as! SCNView
@@ -64,6 +82,9 @@ class GameViewController: UIViewController {
         // add a tap gesture recognizer
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         scnView.addGestureRecognizer(tapGesture)
+        
+        //add ship
+        addship()
     }
     
     @objc
@@ -88,12 +109,16 @@ class GameViewController: UIViewController {
             
             // on completion - unhighlight
             SCNTransaction.completionBlock = {
-                SCNTransaction.begin()
-                SCNTransaction.animationDuration = 0.5
+                //SCNTransaction.begin()
+                //SCNTransaction.animationDuration = 0.5
                 
-                material.emission.contents = UIColor.black
+                //material.emission.contents = UIColor.black
                 
-                SCNTransaction.commit()
+                //SCNTransaction.commit()
+                DispatchQueue.main.async {
+                    self.ship?.removeFromParentNode()
+                }
+                print(#line, "Ship has been shot")
             }
             
             material.emission.contents = UIColor.red
