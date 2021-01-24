@@ -11,17 +11,38 @@ import SceneKit
 
 class GameViewController: UIViewController {
 
+    let scoreLabel = UILabel()
+    
+    var duration: TimeInterval = 10
+    
     var scene: SCNScene {
         (self.view as! SCNView).scene!
     }
     
-    var duration: TimeInterval = 10
-    
-    var score = 0
+    var score = 0 {
+        didSet {
+            scoreLabel.text = "Score: \(score)"
+        }
+    }
     
     var ship: SCNNode? {
         scene.rootNode.childNode(withName: "ship", recursively: true)
     }
+    
+    func addLabel() {
+        
+        scoreLabel.font = UIFont.systemFont(ofSize: 30)
+        scoreLabel.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: 100)
+        scoreLabel.numberOfLines = 2
+        scoreLabel.textAlignment = .center
+        scoreLabel.textColor = .white
+        
+        view.addSubview(scoreLabel)
+        
+        score = 0
+        
+    }
+    
     func addship() {
         
         let x = Int.random(in: -25 ... 25)
@@ -38,8 +59,8 @@ class GameViewController: UIViewController {
         ship?.runAction(SCNAction.move(to: SCNVector3(0, 0, 0), duration: duration)) {
             DispatchQueue.main.async {
                 self.ship?.removeFromParentNode()
+                self.scoreLabel.text = "GAME OVER\nScore: \(self.score)"
             }
-            print(#line, "Game Over")
         }
     }
     
@@ -95,6 +116,9 @@ class GameViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         scnView.addGestureRecognizer(tapGesture)
         
+        //add scoreLabel
+        addLabel()
+        
         //add ship
         addship()
     }
@@ -134,7 +158,6 @@ class GameViewController: UIViewController {
                     self.score += 1
                     material.emission.contents = UIColor.black
                 }
-                print(#line, "Ship has been shot")
             }
             
             material.emission.contents = UIColor.red
